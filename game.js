@@ -15,11 +15,16 @@ const imageInput = document.querySelector('#imageInput');
 const imagePreview = document.querySelector('#imagePreview');
 const imageStatus = document.querySelector('#imageStatus');
 const resetImageButton = document.querySelector('#resetImageButton');
+const installButton = document.querySelector('#installButton');
+const installPanel = document.querySelector('#installPanel');
+const installHint = document.querySelector('#installHint');
+const installClose = document.querySelector('#installClose');
+const installStatus = document.querySelector('#installStatus');
 const music = new Audio('assets/jafi.mp3');
 const soundFiles = {
 	gunshot: 'assets/gunshot.mp3',
 	hit1: 'assets/hit-sound-1.mp3',
-	hit2: 'assets/hit-sound-2.mp3',
+	hit2: 'assets/hit-sound-1.mp3',
 	death: 'assets/death-sound.mp3'
 };
 
@@ -126,15 +131,63 @@ function loadTargetImage() {
 	syncTargetImage();
 }
 
+function setPanel(panel, button, open) {
+	panel.hidden = !open;
+	button.setAttribute('aria-expanded', String(open));
+}
+
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+let deferredPrompt = null;
+
+function setInstallStatus(text, ok) {
+	installStatus.textContent = text;
+	installStatus.classList.toggle('ok', Boolean(ok));
+	if (text) setTimeout(() => { if (installStatus.textContent === text) installStatus.textContent = ''; }, 2600);
+}
+
+if (!isStandalone) installButton.hidden = false;
+
+window.addEventListener('beforeinstallprompt', (event) => {
+	event.preventDefault();
+	deferredPrompt = event;
+	installButton.hidden = false;
+});
+
+window.addEventListener('appinstalled', () => {
+	deferredPrompt = null;
+	installButton.hidden = true;
+	setPanel(installPanel, installButton, false);
+});
+
+installButton.addEventListener('click', async () => {
+	const willOpen = installPanel.hidden;
+	setPanel(imagePanel, imageButton, false);
+	if (deferredPrompt) {
+		setPanel(installPanel, installButton, false);
+		deferredPrompt.prompt();
+		const choice = await deferredPrompt.userChoice;
+		deferredPrompt = null;
+		if (choice.outcome === 'accepted') { installButton.hidden = true; return; }
+		setInstallStatus('Dismissed', false);
+		return;
+	}
+	installHint.textContent = isIOS
+		? 'In Safari tap the Share button, then "Add to Home Screen". The game will open full screen and work offline.'
+		: 'Open your browser menu and pick "Install app" or "Add to Home screen". If that option is missing, the page must be opened over HTTPS or localhost.';
+	setPanel(installPanel, installButton, willOpen);
+});
+
+installClose.addEventListener('click', () => setPanel(installPanel, installButton, false));
+
 imageButton.addEventListener('click', () => {
 	const open = imagePanel.hidden;
-	imagePanel.hidden = !open;
-	imageButton.setAttribute('aria-expanded', String(open));
+	setPanel(imagePanel, imageButton, open);
+	if (open) setPanel(installPanel, installButton, false);
 });
 document.addEventListener('pointerdown', (event) => {
-	if (imagePanel.hidden || imagePanel.contains(event.target) || imageButton.contains(event.target)) return;
-	imagePanel.hidden = true;
-	imageButton.setAttribute('aria-expanded', 'false');
+	if (!imagePanel.hidden && !imagePanel.contains(event.target) && !imageButton.contains(event.target)) setPanel(imagePanel, imageButton, false);
+	if (!installPanel.hidden && !installPanel.contains(event.target) && !installButton.contains(event.target)) setPanel(installPanel, installButton, false);
 });
 imageInput.addEventListener('change', () => handleImageFile(imageInput.files[0]));
 resetImageButton.addEventListener('click', resetTargetImage);
@@ -226,6 +279,8 @@ function endRound() {
 	clearInterval(countdown);
 	clearInterval(spawnLoop);
 	music.pause();
+	enemies.forEach((target) => target.element.remove());
+	enemies = [];
 	roundLabel.textContent = 'Round complete';
 	document.body.classList.remove('is-live');
 	startButton.textContent = 'Play again';
@@ -281,5 +336,12 @@ targetLayer.addEventListener('keydown', (event) => {
 	if (target) registerShot({ clientX: target.element.getBoundingClientRect().x, clientY: target.element.getBoundingClientRect().y }, target);
 });
 startButton.addEventListener('click', startRound);
-document.addEventListener('keydown', (event) => { if (event.key === 'Enter' && document.activeElement !== startButton) startRound(); });
+document.addEventListener('keydown', (event) => {
+	if (event.key !== 'Enter' || document.activeElement === startButton || installPanel.contains(document.activeElement) || imagePanel.contains(document.activeElement)) return;
+	if (!gameActive) startRound();
+});
 window.addEventListener('resize', () => enemies.forEach(moveTarget));
+
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+	window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+}

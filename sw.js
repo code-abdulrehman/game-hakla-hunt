@@ -1,4 +1,4 @@
-const CACHE = 'hakla-hunt-v1';
+const CACHE = 'hakla-hunt-v2';
 const CORE_ASSETS = [
 	'./',
 	'./index.html',

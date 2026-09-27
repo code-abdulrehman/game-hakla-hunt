@@ -32,6 +32,7 @@
 				<span id="roundLabel">Ready to hunt</span>
 			</div>
 			<div class="topbar-tools">
+				<button class="tool-button install-button" id="installButton" type="button" aria-expanded="false" aria-controls="installPanel" hidden>Install</button>
 				<button class="tool-button" id="imageButton" type="button" aria-expanded="false" aria-controls="imagePanel">Target img</button>
 				<div class="image-panel" id="imagePanel" hidden>
 					<p class="panel-title">Target image</p>
@@ -42,6 +43,14 @@
 					<div class="panel-actions">
 						<button class="panel-reset" id="resetImageButton" type="button">Use default</button>
 						<span class="panel-status" id="imageStatus" role="status"></span>
+					</div>
+				</div>
+				<div class="image-panel" id="installPanel" hidden>
+					<p class="panel-title">Install game</p>
+					<p class="panel-hint" id="installHint">Add Hakla Hunt to your home screen so it opens like a real app and works offline.</p>
+					<div class="panel-actions">
+						<button class="panel-reset" id="installClose" type="button">Got it</button>
+						<span class="panel-status" id="installStatus" role="status"></span>
 					</div>
 				</div>
 			</div>
