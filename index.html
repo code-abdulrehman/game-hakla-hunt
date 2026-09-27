@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+	<title>Hakla Hunt</title>
+	<meta name="description" content="Backyard shooting range. Tap the targets, make every shot count. Installable and works offline.">
+	<meta name="theme-color" content="#17201f">
+	<meta name="color-scheme" content="light">
+	<link rel="manifest" href="manifest.webmanifest">
+	<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+	<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="Hakla Hunt">
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<main class="game-shell">
+		<header class="topbar">
+			<div class="brand">
+				<span class="brand-mark">HH</span>
+				<div>
+					<p class="eyebrow">Backyard range</p>
+					<h1>Hakla Hunt</h1>
+				</div>
+			</div>
+			<div class="round-status">
+				<span class="status-dot"></span>
+				<span id="roundLabel">Ready to hunt</span>
+			</div>
+			<div class="topbar-tools">
+				<button class="tool-button" id="imageButton" type="button" aria-expanded="false" aria-controls="imagePanel">Target img</button>
+				<div class="image-panel" id="imagePanel" hidden>
+					<p class="panel-title">Target image</p>
+					<div class="panel-preview"><img id="imagePreview" src="assets/enemy.png" alt="Current target"></div>
+					<label class="panel-upload" for="imageInput">Upload custom image</label>
+					<input type="file" id="imageInput" accept="image/*" hidden>
+					<p class="panel-hint">PNG or JPG. Stored on this device only.</p>
+					<div class="panel-actions">
+						<button class="panel-reset" id="resetImageButton" type="button">Use default</button>
+						<span class="panel-status" id="imageStatus" role="status"></span>
+					</div>
+				</div>
+			</div>
+		</header>
+
+		<section class="scoreboard" aria-label="Game statistics">
+			<div class="stat stat-score"><span>Score</span><strong id="score">00</strong></div>
+			<div class="stat"><span>Targets</span><strong id="targets">00</strong></div>
+			<div class="stat stat-time"><span>Time left</span><strong id="time">45</strong><small>sec</small></div>
+			<button class="start-button" id="startButton" type="button">Start round <span>Enter</span></button>
+		</section>
+
+		<section class="range-wrap">
+			<div class="range-frame">
+				<div class="range" id="range" aria-label="Shooting range">
+					<div class="range-vignette"></div>
+					<div class="range-caption"><span class="live-line"></span>Live range</div>
+					<div class="target-layer" id="targetLayer" aria-label="Enemy targets"></div>
+					<div class="hit-flash" id="hitFlash"></div>
+					<div class="message" id="message">Press start when you're ready</div>
+					<div class="crosshair" id="crosshair"><span></span><i></i></div>
+				</div>
+			</div>
+			<div class="range-footer">
+				<div><span class="key-icon">●</span> <span id="footerHint">Tap or click the target</span></div>
+				<div class="ammo"><span class="ammo-count" id="ammo">∞</span> shots in the chamber</div>
+			</div>
+		</section>
+
+		<footer><span>HUNT SMART</span><span>•</span><span>MAKE EVERY SHOT COUNT</span></footer>
+	</main>
+	<script src="game.js"></script>
+</body>
+</html>
